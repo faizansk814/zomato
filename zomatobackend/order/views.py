@@ -23,7 +23,7 @@ def getCart(request):
         cart = Cart.objects.get(user=user)
         cart_data = {
             "user": user.username,
-            "products": list(cart.product.values())  # Convert QuerySet to list
+            "products": list(cart.product.values())
         }
         return JsonResponse(cart_data)
     except Cart.DoesNotExist:

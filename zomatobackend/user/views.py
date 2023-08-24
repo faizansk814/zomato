@@ -4,6 +4,7 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth import authenticate,login,logout
 from django.http import JsonResponse
 import json
+from django.core.serializers import serialize
 # Create your views here.
 
 def register(req):
@@ -11,6 +12,10 @@ def register(req):
         body=json.loads(req.body)
         username=body.get('username')
         password=body.get('password')
+        isUserpresent=User.objects.filter(username=username).exists()
+        if(isUserpresent):
+            return JsonResponse({"msg":"User already present"})
+        
         hash_pass=make_password(password)
         user=User.objects.create(username=username,password=hash_pass)
         return JsonResponse({"msg":"Registration succesful"})
@@ -25,7 +30,11 @@ def Login(req):
         user=authenticate(username=username,password=password)
         if user is not None:
             login(req,user)
-            return JsonResponse({"msg":"Login succesful"})
+            userjson={
+                "username":user.username,
+                "password":user.password
+            }
+            return JsonResponse({"msg":"Login succesful","user":userjson})
         else:
            return JsonResponse({"msg":"login failed"}) 
     else:
